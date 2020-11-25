@@ -4,6 +4,7 @@
 	"displayName": "AlgoSnipper",
 	"description": "Auto-completion and snippets for IUT",
 	"version": "0.0.26",
+	"icon": "./icon.png",
 	"engines": {
 		"vscode": "^1.51.0"
 	},
