@@ -17,9 +17,9 @@ This extension provides:
   - Keyword colorization to help reading the code
   - Tools to execute the algorithme, generate lexicon, ...
 
-[snippet demo](https://www.github.com/paulux06/algosnipper/snippets.gif)
-![colorization demo](https://www.github.com/paulux06/algosnipper/colorisation.gif)
-[lexicon demo](https://www.github.com/paulux06/algosnipper/lexique.gif)
+![snippet demo](./snippets.gif)
+![colorization demo](./colorisation.gif)
+![lexicon demo](./lexique.gif)
 
 
 Author: Paulux \[
