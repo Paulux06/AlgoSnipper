@@ -1,0 +1,21 @@
+fonction parler()
+début
+    écrire( "salut" )
+fin 
+
+fonction bouger( nombre : entier )
+début
+    écrire( "j'ai bougé de " )
+    écrire( nombre )
+fin 
+
+algorithme
+début
+    nom ← "joseph"
+    prenom ← "patrick"
+    écrire( nom )
+    écrire( prenom )
+    prenom ← nom
+    écrire( prenom )
+    parler()
+fin 

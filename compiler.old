@@ -1,0 +1,103 @@
+vscode.window.showInformationMessage("Lancement de l'algorithme ...");
+		let text_input = vscode.window.activeTextEditor.document.getText().split("\n");
+		let output = vscode.window.createOutputChannel("Algorithme");
+		output.show(true);
+		output.appendLine("--- Début de l'algorithme ---");
+		
+		let variables = []; // tableau de variables (nom+type+valeur)
+		let funcs = []; // tableau des fonctions (nom+pos)
+		let stack = []; // breakpoints pour les fonctions (line position)
+		const LINECOUNT = vscode.window.activeTextEditor.document.lineCount;
+		let currentLine = 0;
+		let finAlgo = false;
+
+		//search for functions
+		for (let i = 0; i < text_input.length; i++) {
+			const line = text_input[i];
+			if (line.startsWith("fonction ")) {
+				let fname = "";
+				let chars = line.split("");
+				for (let j = 9; j < chars.length; j++) {
+					if (chars[j] == "(")
+						break;
+					fname += chars[j];
+				}
+				funcs.push({name: fname, pos: i});
+			}
+		}
+		console.log("functions :", funcs);
+
+		//search for start
+		while (currentLine < LINECOUNT-1) {
+			currentLine++;
+			if (text_input[currentLine].startsWith("algorithme") && text_input[currentLine+1].startsWith("début")) {
+				currentLine++;
+				break;
+			}
+		}
+		console.log("starts at "+currentLine);
+		while (!finAlgo) {
+			if (currentLine == 0) {
+				output.appendLine("Erreur: Aucun début d'algorithme trouvé !");
+				break;
+			}
+			let currentOperation = text_input[currentLine];
+			let words = currentOperation.split(" ");
+			for (let i = 0; i < words.length; i++) {
+				//check for variable creation
+				if (words[i] == "←") {
+					let alreadyExists = -1
+					for (let j = 0; j < variables.length; j++) {
+						if (variables[j].name.trim() == words[i-1].trim()) 
+							alreadyExists = j;
+					}
+					if (alreadyExists == -1)
+						variables.push({name: words[i-1], type: getVarType(words[i+1], variables), value: getVarValue(currentOperation, variables)})
+					else
+						variables[alreadyExists].value = getVarValue(currentOperation, variables);
+					console.log("stored new value: "+words[i-1]+" of type "+getVarType(words[i+1], variables)+" and value of "+getVarValue(currentOperation, variables))
+				}
+				
+				//check for output printing
+				else if (words[i].startsWith("écrire")) {
+					let chars = currentOperation.split("");
+					let bounds = {min: 0, max: 0};
+					for (let j = 0; j < chars.length; j++) {
+						if (chars[j] == '(')
+							bounds.min = j+1;
+						if (chars[j] == ')')
+							bounds.max = j;
+					}
+					let info = currentOperation.substr(bounds.min, bounds.max-bounds.min);
+					var varName = info.split(" ").join("");
+					let found = false
+					for (let j = 0; j < variables.length; j++) {
+						if (variables[j].name == varName) {
+							output.appendLine("Sortie: ["+variables[j].value.trim()+"] à la ligne "+(currentLine+1));
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						if (info.startsWith('"') || info.startsWith(' "')) {
+							let minMax = {min: 0, max: 0};
+							for (let j = bounds.min; j < bounds.max; j++) {
+								if (chars[j] == '"') {
+									if (j < (bounds.min+bounds.max)/2)
+										minMax.min = j-bounds.min+1;
+									else
+										minMax.max = j-bounds.min;
+								}
+							}
+							console.log(minMax)
+							output.appendLine("Sortie: ["+info.substr(minMax.min, minMax.max-minMax.min).trim()+"] à la ligne "+(currentLine+1));
+						}
+					}
+				}
+			}
+			currentLine++;
+			if (stack.length == 0 && text_input[currentLine].startsWith("fin") || currentLine == LINECOUNT-1)
+				finAlgo = true;
+		}
+
+		output.appendLine("--- Fin de l'algorithme ---");

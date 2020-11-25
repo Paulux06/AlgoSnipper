@@ -1,0 +1,65 @@
+{
+    "Ecris une variable": {
+        "scope": "algo",
+        "prefix": "écrire",
+        "body": [
+            "écrire( ${1:valeur} )"
+        ]
+    },
+    "Construit un template de [pour]": {
+        "scope": "algo",
+        "prefix": "pour",
+        "body": [
+            "pour ${1:variable} de ${2:début} à ${3:fin} faire",
+            "    $4",
+            "fpour "
+        ]
+    },
+    "Construit un template de [tant que]": {
+        "scope": "algo",
+        "prefix": "tant que",
+        "body": [
+            "tant que ${1:condition} faire",
+            "    $2",
+            "ftant "
+        ]
+    },
+    "Construit un template de [si]": {
+        "scope": "algo",
+        "prefix": "si",
+        "body": [
+            "si ${1:condition} alors",
+            "    $2",
+            "sinon",
+            "    $3",
+            "fsi "
+        ]
+    },
+    "Construit un template de [fonction]": {
+        "scope": "algo",
+        "prefix": "fonction",
+        "body": [
+            "fonction ${1:nom}( ${2:arguments} )",
+            "début",
+            "    $3",
+            "fin "
+        ]
+    },
+    "Construit un template de [algorithme]": {
+        "scope": "algo",
+        "prefix": "algorithme",
+        "body": [
+            "algorithme",
+            "début",
+            "    $1",
+            "fin "
+        ]
+    },
+    "Construit un template de [retourne]": {
+        "scope": "algo",
+        "prefix": "retourne",
+        "body": [
+            "retourne ${1:valeur}"
+        ]
+    }
+}

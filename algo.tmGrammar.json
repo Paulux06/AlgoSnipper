@@ -1,0 +1,44 @@
+{
+    "scopeName": "source.algo",
+    "patterns": [{ "include": "#expression" }],
+    "repository": {
+        "expression": {
+            "patterns": [
+                { "include": "#keywords" }, { "include": "#numbers" },
+                { "include": "#types" }, { "include": "#functions" },
+                { "include": "#single-quote" }, { "include": "#double-quote" },
+                { "include": "#arrow" }
+            ]
+        },
+        "keywords": {
+            "match": "fonction |algorithme\n|tant que |fpour\n|fpour |pour |ftant\n|ftant |sinon\n|sinon | alors\n|si |fsi\n|fsi |début\n|fin\n|fin |à | faire\n|de |retourne |et |non |ou |InOut|mod ",
+            "name": "keyword.letter"
+        },
+        "numbers": {
+            "match": "0|1|2|3|4|5|6|7|8|9|vrai|faux",
+            "name": "constant.numeric.decimal"
+        },
+        "types": {
+            "match": " entier| Chaîne| caractère| booléen| réel| Etudiant| ListeSym| Liste| Date| Pile| tableau| FilePriorité| File| inconnu| Place",
+            "name": "entity.name.type.instance"
+        },
+        "functions": {
+            "match": "",
+            "name": ""
+        },
+        "arrow": {
+            "match": "← |◄- |<- |<= |= |< |> |>= ",
+            "name": "support.function"
+        },
+        "double-quote": {
+          "begin": "\"",
+          "end": "\"",
+          "name": "string.quoted.single"
+        },
+        "single-quote": {
+          "begin": "'",
+          "end": "'",
+          "name": "string.quoted.single"
+        }
+    }
+}
