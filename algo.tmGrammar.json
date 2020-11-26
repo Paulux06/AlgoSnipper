@@ -7,11 +7,12 @@
                 { "include": "#keywords" }, { "include": "#numbers" },
                 { "include": "#types" }, { "include": "#functions" },
                 { "include": "#single-quote" }, { "include": "#double-quote" },
+                { "include": "#single-comment" }, { "include": "#double-comment" },
                 { "include": "#arrow" }
             ]
         },
         "keywords": {
-            "match": "fonction |algorithme\n|tant que |fpour\n|fpour |pour |ftant\n|ftant |sinon\n|sinon | alors\n|si |fsi\n|fsi |début\n|fin\n|fin |à | faire\n|de |retourne |et |non |ou |InOut|mod ",
+            "match": "fonction |algorithme\n|algorithme |tant que |fpour\n|fpour |pour |ftant\n|ftant |sinon\n|sinon | alors\n| alors |si |fsi\n|fsi |début\n|début |fin\n|fin |à | faire\n| faire |de |retourne |et |non |ou |InOut|mod ",
             "name": "keyword.letter"
         },
         "numbers": {
@@ -39,6 +40,16 @@
           "begin": "'",
           "end": "'",
           "name": "string.quoted.single"
+        },
+        "single-comment": {
+          "begin": "//",
+          "end": "\\n",
+          "name": "comment.line.double-slash"
+        },
+        "double-comment": {
+          "begin": "/\\*",
+          "end": "\\*/",
+          "name": "comment.block"
         }
     }
 }

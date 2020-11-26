@@ -1,9 +1,5 @@
 # Change Log
 
-All notable changes to the "algosnipper" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+Added:
+- Commentaries support (single with \[//\], and multiple with \[/* */\])
+- Fixed some bugs and weird synthaxe colors
