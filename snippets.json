@@ -1,30 +1,57 @@
 {
-    "Ecris une variable": {
+    "Template de [écrire]": {
         "scope": "algo",
         "prefix": "écrire",
         "body": [
-            "écrire( ${1:valeur} )"
+            "écrire(${1:valeur})"
         ]
     },
-    "Construit un template de [pour]": {
+    "Template de [pour]": {
         "scope": "algo",
         "prefix": "pour",
         "body": [
             "pour ${1:variable} de ${2:début} à ${3:fin} faire",
             "    $4",
-            "fpour "
+            "fpour"
         ]
     },
-    "Construit un template de [tant que]": {
+    "Template de [pour chaque]": {
+        "scope": "algo",
+        "prefix": "pour chaque",
+        "body": [
+            "pour chaque ${1:variable} dans ${2:ensemble} faire",
+            "    $3",
+            "fpour"
+        ]
+    },
+    "Template de [pour chaque/jusque]": {
+        "scope": "algo",
+        "prefix": "pour chaque jusqu'à",
+        "body": [
+            "pour chaque ${1:variable} jusque ${2:condition} dans ${3:ensemble} faire",
+            "    $4",
+            "fpour"
+        ]
+    },
+    "Template de [tant que]": {
         "scope": "algo",
         "prefix": "tant que",
         "body": [
             "tant que ${1:condition} faire",
             "    $2",
-            "ftant "
+            "ftant"
         ]
     },
-    "Construit un template de [si]": {
+    "Template de [si]": {
+        "scope": "algo",
+        "prefix": "si",
+        "body": [
+            "si ${1:condition} alors",
+            "    $2",
+            "fsi"
+        ]
+    },
+    "Template de [si/sinon]": {
         "scope": "algo",
         "prefix": "si",
         "body": [
@@ -32,30 +59,30 @@
             "    $2",
             "sinon",
             "    $3",
-            "fsi "
+            "fsi"
         ]
     },
-    "Construit un template de [fonction]": {
+    "Template de [fonction]": {
         "scope": "algo",
         "prefix": "fonction",
         "body": [
             "fonction ${1:nom}( ${2:arguments} )",
             "début",
             "    $3",
-            "fin "
+            "fin"
         ]
     },
-    "Construit un template de [algorithme]": {
+    "Template de [algorithme]": {
         "scope": "algo",
         "prefix": "algorithme",
         "body": [
             "algorithme",
             "début",
             "    $1",
-            "fin "
+            "fin"
         ]
     },
-    "Construit un template de [retourne]": {
+    "Template de [retourne]": {
         "scope": "algo",
         "prefix": "retourne",
         "body": [

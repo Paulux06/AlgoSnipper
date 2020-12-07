@@ -1,29 +1,38 @@
-# [Français] extension Algo pour l'IUT Charlemagne
+# LSP Example
 
-**Note:** Toujours en développement !
+Heavily documented sample code for https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
 
-Cette extension ajoute:
-  - Des raccourcis (snippets) pour coder plus vite
-  - Une colorisation des mots clés pour y voir plus clair
-  - Des outils pour exécuter l'algorithme, générer le lexique, ...
+## Functionality
 
-# [English] Algo extension for Charlemagne IT Departement
-*(thanks to my english teacher, by the way)*
+This Language Server works for plain text file. It has the following language features:
+- Completions
+- Diagnostics regenerated on each file change or configuration change
 
-**Note:** Still in development !
+It also includes an End-to-End test.
 
-This extension provides:
-  - Snippets to code faster
-  - Keyword colorization to help reading the code
-  - Tools to execute the algorithme, generate lexicon, ...
+## Structure
 
-![snippet demo](https://raw.githubusercontent.com/Paulux06/AlgoSnipper/master/snippets.gif)
-![colorization demo](https://raw.githubusercontent.com/Paulux06/AlgoSnipper/master/colorisation.gif)
-![lexicon demo](https://raw.githubusercontent.com/Paulux06/AlgoSnipper/master/lexique.gif)
+```
+.
+├── client // Language Client
+│   ├── src
+│   │   ├── test // End to End tests for Language Client / Server
+│   │   └── extension.ts // Language Client entry point
+├── package.json // The extension manifest.
+└── server // Language Server
+    └── src
+        └── server.ts // Language Server entry point
+```
 
+## Running the Sample
 
-Author: Paulux \[
-[WebSite](https://paulux06.github.io) |
-[Twitter](https://twitter.com/paulux06) |
-[YouTube](https://www.youtube.com/channel/UCt9MIbQT2fub0_vHa8hTkuw) |
-[Instagram](https://www.instagram.com/paulux06polux) \]
+- Run `npm install` in this folder. This installs all necessary npm modules in both the client and server folder
+- Open VS Code on this folder.
+- Press Ctrl+Shift+B to compile the client and server.
+- Switch to the Debug viewlet.
+- Select `Launch Client` from the drop down.
+- Run the launch config.
+- If you want to debug the server as well use the launch configuration `Attach to Server`
+- In the [Extension Development Host] instance of VSCode, open a document in 'plain text' language mode.
+  - Type `j` or `t` to see `Javascript` and `TypeScript` completion.
+  - Enter text content such as `AAA aaa BBB`. The extension will emit diagnostics for all words in all-uppercase.

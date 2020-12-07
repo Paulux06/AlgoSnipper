@@ -1,5 +1,5 @@
 # Change Log
 
-Added:
-- Commentaries support (single with \[//\], and multiple with \[/* */\])
-- Fixed some bugs and weird synthaxe colors
+Ajouté:
+- Une meilleure colorisation syntaxique
+- Un "language server" pour de futures améliorations =)

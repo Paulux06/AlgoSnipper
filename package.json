@@ -1,24 +1,49 @@
 {
-	"publisher": "Paulux",
 	"name": "algosnipper",
 	"displayName": "AlgoSnipper",
-	"description": "Auto-completion and snippets for IUT",
-	"version": "0.0.35",
 	"icon": "icon.png",
+	"description": "Auto-completion and snippets for Algo",
+	"version": "0.0.40",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/paulux06/algosnipper.git"
+	},
+	"publisher": "Paulux",
+	"categories": ["Other"],
+	"keywords": [
+		"multi-root ready"
+	],
 	"engines": {
 		"vscode": "^1.51.0"
 	},
-	"categories": [
-		"Other"
-	],
 	"activationEvents": [
-		"onCommand:algosnipper.genLexique",
-		"onCommand:algosnipper.insertArrow",
-		"onCommand:algosnipper.launch",
 		"onLanguage:algo"
 	],
-	"main": "./extension.js",
+	"main": "./client/out/extension",
 	"contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "Main configuration",
+			"properties": {
+				"languageServerAlgo.maxNumberOfProblems": {
+					"scope": "resource",
+					"type": "number",
+					"default": 100,
+					"description": "Controls the maximum number of problems produced by the server."
+				},
+				"languageServerAlgo.trace.server": {
+					"scope": "window",
+					"type": "string",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"default": "off",
+					"description": "Traces the communication between VS Code and the language server."
+				}
+			}
+		},
 		"commands": [
 			{
 				"command": "algosnipper.genLexique",
@@ -27,6 +52,10 @@
 			{
 				"command": "algosnipper.launch",
 				"title": "Lancer l'algorithme"
+			},
+			{
+				"command": "algosnipper.insertArrow",
+				"title": "Insérer une flèche"
 			}
 		],
 		"snippets": [
@@ -64,27 +93,31 @@
                 "command": "algosnipper.launch",
                 "key": "ctrl+alt+l",
                 "mac": "cmd+alt+l"
+            },
+            {
+                "command": "algosnipper.genLexique",
+                "key": "ctrl+alt+g",
+                "mac": "cmd+alt+g"
             }
 		]
 	},
 	"scripts": {
-		"lint": "eslint .",
-		"pretest": "npm run lint",
-		"test": "node ./test/runTest.js"
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
+		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"test": "sh ./scripts/e2e.sh"
 	},
 	"devDependencies": {
 		"@types/vscode": "^1.51.0",
 		"@types/glob": "^7.1.3",
-		"@types/mocha": "^8.0.0",
-		"@types/node": "^12.11.7",
-		"eslint": "^7.9.0",
+		"@types/mocha": "^8.0.3",
+		"@types/node": "^12.12.0",
+		"@typescript-eslint/parser": "^2.3.0",
+		"eslint": "^6.4.0",
 		"glob": "^7.1.6",
-		"mocha": "^8.1.3",
+		"mocha": "^8.1.1",
 		"typescript": "^4.0.2",
 		"vscode-test": "^1.4.0"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/paulux06/algosnipper.git"
 	}
 }

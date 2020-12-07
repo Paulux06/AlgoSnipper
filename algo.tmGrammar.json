@@ -4,52 +4,60 @@
     "repository": {
         "expression": {
             "patterns": [
-                { "include": "#keywords" }, { "include": "#numbers" },
-                { "include": "#types" }, { "include": "#functions" },
+                { "include": "#keywords" }, { "include": "#numbers" }, 
+                { "include": "#types" }, { "include": "#constant" }, 
                 { "include": "#single-quote" }, { "include": "#double-quote" },
                 { "include": "#single-comment" }, { "include": "#double-comment" },
-                { "include": "#arrow" }
+                { "include": "#function" }, { "include": "#arrow" }
             ]
         },
         "keywords": {
-            "match": "fonction |algorithme\n|algorithme |tant que |fpour\n|fpour |pour |ftant\n|ftant |sinon\n|sinon | alors\n| alors |si |fsi\n|fsi |début\n|début |fin\n|fin |à | faire\n| faire |de |retourne |et |non |ou |InOut|mod ",
+            "match": "[^a-zA-Z0-9]*fonction[^a-zA-Z0-9]|[^a-zA-Z0-9]*algorithme[^a-zA-Z0-9/]|[^a-zA-Z0-9]tant que[^a-zA-Z0-9]|[^a-zA-Z0-9]fpour[^a-zA-Z0-9/]|[^a-zA-Z0-9]pour[^a-zA-Z0-9]|[^a-zA-Z0-9]ftant[^a-zA-Z0-9/]+|[^a-zA-Z0-9]sinon[^a-zA-Z0-9/]+|[^a-zA-Z0-9]alors[^a-zA-Z0-9/]+|[^a-zA-Z0-9]si[^a-zA-Z0-9]|[^a-zA-Z0-9]fsi[^a-zA-Z0-9/]+|[^a-zA-Z0-9]*début[^a-zA-Z0-9/]+|[^a-zA-Z0-9]*fin[^a-zA-Z0-9/]+|[^a-zA-Z0-9]à[^a-zA-Z0-9]|[^a-zA-Z0-9]faire[^a-zA-Z0-9/]+|[^a-zA-Z0-9]de[^a-zA-Z0-9]|[^a-zA-Z0-9]retourne[^a-zA-Z0-9]|[^a-zA-Z0-9]et[^a-zA-Z0-9]|[^a-zA-Z0-9]non[^a-zA-Z0-9]|[^a-zA-Z0-9]ou[^a-zA-Z0-9]|[^a-zA-Z0-9]InOut[^a-zA-Z0-9]|[^a-zA-Z0-9]mod[^a-zA-Z0-9]|[^a-zA-Z0-9]chaque[^a-zA-Z0-9]|[^a-zA-Z0-9]dans[^a-zA-Z0-9]",
             "name": "keyword.letter"
         },
         "numbers": {
-            "match": "0|1|2|3|4|5|6|7|8|9|vrai|faux",
+            "match": "[^a-zA-Z0-9][0-9]+\\.?[0-9]*[^a-zA-Z]|[^a-zA-Z0-9]vrai[^a-zA-Z0-9]|[^a-zA-Z0-9]faux[^a-zA-Z0-9]",
             "name": "constant.numeric.decimal"
         },
         "types": {
-            "match": " entier| Chaîne| caractère| booléen| réel| Etudiant| ListeSym| Liste| Date| Pile| tableau| FilePriorité| File| inconnu| Place",
+            "match": "[^a-zA-Z0-9]entier[^a-zA-Z0-9]|[^a-zA-Z0-9]chaîne[^a-zA-Z0-9]|[^a-zA-Z0-9]caractère[^a-zA-Z0-9]|[^a-zA-Z0-9]booléen[^a-zA-Z0-9]|[^a-zA-Z0-9]réel[^a-zA-Z0-9]|[^a-zA-Z0-9]tableau[^a-zA-Z0-9]|[A-Z][a-z]+",
             "name": "entity.name.type.instance"
         },
-        "functions": {
-            "match": "",
-            "name": ""
-        },
         "arrow": {
-            "match": "← |◄- |<- |<= |= |< |> |>= ",
+            "match": "←|◄-|<-|<=|=|<|>|>=|->|=>|-►",
             "name": "support.function"
         },
         "double-quote": {
-          "begin": "\"",
-          "end": "\"",
-          "name": "string.quoted.single"
+            "begin": "\"",
+            "end": "\"",
+            "name": "string.quoted.single"
         },
         "single-quote": {
-          "begin": "'",
-          "end": "'",
-          "name": "string.quoted.single"
+            "begin": "'",
+            "end": "'",
+            "name": "string.quoted.single"
         },
         "single-comment": {
-          "begin": "//",
-          "end": "\\n",
-          "name": "comment.line.double-slash"
+            "begin": "//",
+            "end": "\\n",
+            "name": "comment.line.double-slash"
         },
         "double-comment": {
-          "begin": "/\\*",
-          "end": "\\*/",
-          "name": "comment.block"
+            "begin": "/\\*",
+            "end": "\\*/",
+            "name": "comment.block"
+        },
+        "constant": {
+            "match": "[A-Z]|_[A-Z]",
+            "name": "variable.other.contants"
+        },
+        "function": {
+            "match": "[a-zA-Z]+\\(",
+            "name": "entity.name.function"
+        },
+        "blank": {
+            "match": "[a-zA-Z0-9]",
+            "name": "variable.parameter"
         }
     }
 }

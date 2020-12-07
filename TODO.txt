@@ -1,1 +1,5 @@
 [execute program] function
+terminer le language server
+changer =/= vers ≠
+CTRL+ALT+G pour lexique
+Améliorer le lexique auto
