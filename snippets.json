@@ -15,6 +15,15 @@
             "fpour"
         ]
     },
+    "Template de [pour/décroissant]": {
+        "scope": "algo",
+        "prefix": "pour décroissant",
+        "body": [
+            "pour ${1:variable} décroissant de ${2:début} à ${3:fin} faire",
+            "    $4",
+            "fpour"
+        ]
+    },
     "Template de [pour chaque]": {
         "scope": "algo",
         "prefix": "pour chaque",
@@ -26,7 +35,7 @@
     },
     "Template de [pour chaque/jusque]": {
         "scope": "algo",
-        "prefix": "pour chaque jusqu'à",
+        "prefix": "pour chaque jusque",
         "body": [
             "pour chaque ${1:variable} jusque ${2:condition} dans ${3:ensemble} faire",
             "    $4",
@@ -53,7 +62,7 @@
     },
     "Template de [si/sinon]": {
         "scope": "algo",
-        "prefix": "si",
+        "prefix": "si sinon",
         "body": [
             "si ${1:condition} alors",
             "    $2",

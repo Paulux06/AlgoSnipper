@@ -1,5 +1,6 @@
 # Change Log
 
 Ajouté:
+- Une détection automatique des variables / classes quand elles sont dans le lexique
 - Une meilleure colorisation syntaxique
-- Un "language server" pour de futures améliorations =)
+- Des easter eggs (UwU, vous les trouverez jamais !)

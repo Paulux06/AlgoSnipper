@@ -1,17 +1,42 @@
-fonction salut( eric: Place ): chaîne
+fonction classement( n : entier, InOut tabReponse : Table([1..20] -> chaîne), nbMin : entier ): Table[1..n+1]
 début
-    retourne "bonjour"
-    hello()
-    mange ◄- 98.09
-    MAXTAB // salut
-    salut ◄- 3
-    si salut alors
-        
-    sinon
-        
-    fsi
+    tabFin ◄- tabVide();
+    adjtab(tabFin, 1, ("-", -1, faux))
+    pour i de 1 à n faire
+        nom ◄- lire()
+        nbP ◄- 0
+        pour j de 1 à 20 faire
+            val ◄- lire()
+            si accesTab(tabReponse, j) = val alors
+                nbP ◄- nbP + j
+            fsi
+        fpour
+        obtention ◄- faux
+        si nbP >= nbMin alors
+            obtention ◄- vrai
+        fsi
+        res ◄- (nom, nbP, obtention)
+        k ◄- 1
+        tant que nbP <= accesTab(tabFin, k).nbP faire
+            k ◄- k + 1
+        ftant
+        adjtab(tabFin, i + 1, accestab(tabFin, i))
+        pour l décroissant de i-1 à k faire
+            chgtab(tabFin, l+1, accestab(tabFin, l))
+        fpour
+        chgtab(tabFin, k, res)
+    fpour
+    retourne 
 fin
 
 lexique:
-	mange : réel // commentaire
-	salut : entier // commentaire
+	n : entier, // commentaire
+	tabReponse : Table([1..20] // commentaire
+	nbMin : entier // commentaire
+	tabFin : inconnu // commentaire
+	nom : inconnu // commentaire
+	nbP : entier // commentaire
+	val : inconnu // commentaire
+	obtention : booléen // commentaire
+	res : inconnu // commentaire
+	k : entier // commentaire

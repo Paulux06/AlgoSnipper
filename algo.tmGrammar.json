@@ -5,22 +5,23 @@
         "expression": {
             "patterns": [
                 { "include": "#keywords" }, { "include": "#numbers" }, 
-                { "include": "#types" }, { "include": "#constant" }, 
+                { "include": "#types" }, { "include": "#constant" },
                 { "include": "#single-quote" }, { "include": "#double-quote" },
+                { "include": "#function" }, { "include": "#arrow" },
                 { "include": "#single-comment" }, { "include": "#double-comment" },
-                { "include": "#function" }, { "include": "#arrow" }
+                { "include": "#furry" }
             ]
         },
         "keywords": {
-            "match": "[^a-zA-Z0-9]*fonction[^a-zA-Z0-9]|[^a-zA-Z0-9]*algorithme[^a-zA-Z0-9/]|[^a-zA-Z0-9]tant que[^a-zA-Z0-9]|[^a-zA-Z0-9]fpour[^a-zA-Z0-9/]|[^a-zA-Z0-9]pour[^a-zA-Z0-9]|[^a-zA-Z0-9]ftant[^a-zA-Z0-9/]+|[^a-zA-Z0-9]sinon[^a-zA-Z0-9/]+|[^a-zA-Z0-9]alors[^a-zA-Z0-9/]+|[^a-zA-Z0-9]si[^a-zA-Z0-9]|[^a-zA-Z0-9]fsi[^a-zA-Z0-9/]+|[^a-zA-Z0-9]*début[^a-zA-Z0-9/]+|[^a-zA-Z0-9]*fin[^a-zA-Z0-9/]+|[^a-zA-Z0-9]à[^a-zA-Z0-9]|[^a-zA-Z0-9]faire[^a-zA-Z0-9/]+|[^a-zA-Z0-9]de[^a-zA-Z0-9]|[^a-zA-Z0-9]retourne[^a-zA-Z0-9]|[^a-zA-Z0-9]et[^a-zA-Z0-9]|[^a-zA-Z0-9]non[^a-zA-Z0-9]|[^a-zA-Z0-9]ou[^a-zA-Z0-9]|[^a-zA-Z0-9]InOut[^a-zA-Z0-9]|[^a-zA-Z0-9]mod[^a-zA-Z0-9]|[^a-zA-Z0-9]chaque[^a-zA-Z0-9]|[^a-zA-Z0-9]dans[^a-zA-Z0-9]",
+            "match": "fonction[^a-zA-Z0-9]|algorithme[^a-zA-Z0-9]|tant que[^a-zA-Z0-9]|fpour[^a-zA-Z0-9]|pour[^a-zA-Z0-9]|ftant[^a-zA-Z0-9]|sinon[^a-zA-Z0-9]|alors[^a-zA-Z0-9]|si[^a-zA-Z0-9]|fsi[^a-zA-Z0-9]|début[^a-zA-Z0-9]|fin[^a-zA-Z0-9]|à[^a-zA-Z0-9]|faire[^a-zA-Z0-9]|de[^a-zA-Z0-9]|retourne[^a-zA-Z0-9]|et[^a-zA-Z0-9]|non[^a-zA-Z0-9]|ou[^a-zA-Z0-9]|InOut[^a-zA-Z0-9]|mod[^a-zA-Z0-9]|chaque[^a-zA-Z0-9]|dans[^a-zA-Z0-9]|décroissant[^a-zA-Z0-9]|jusque[^a-zA-Z0-9]",
             "name": "keyword.letter"
         },
         "numbers": {
-            "match": "[^a-zA-Z0-9][0-9]+\\.?[0-9]*[^a-zA-Z]|[^a-zA-Z0-9]vrai[^a-zA-Z0-9]|[^a-zA-Z0-9]faux[^a-zA-Z0-9]",
+            "match": "[^a-zA-ZéêâûùàèçïîÏÎÉÊÂÛÙÀÈÇ_][0-9]+\\.[0-9]|[^a-zA-ZéêâûùàèçïîÏÎÉÊÂÛÙÀÈÇ_][0-9]|vrai|faux",
             "name": "constant.numeric.decimal"
         },
         "types": {
-            "match": "[^a-zA-Z0-9]entier[^a-zA-Z0-9]|[^a-zA-Z0-9]chaîne[^a-zA-Z0-9]|[^a-zA-Z0-9]caractère[^a-zA-Z0-9]|[^a-zA-Z0-9]booléen[^a-zA-Z0-9]|[^a-zA-Z0-9]réel[^a-zA-Z0-9]|[^a-zA-Z0-9]tableau[^a-zA-Z0-9]|[A-Z][a-z]+",
+            "match": "entier|chaîne|caractère|booléen|réel|tableau|[^A-Za-z0-9éêâûùàèçïî_\"'][A-ZÉÊÂÛÙÀÈÇÏÎ_]+[a-z0-9éêâûùàèçïî_]+[a-zA-Z0-9éêâûùàèçïîÏÎÉÊÂÛÙÀÈÇ_]*",
             "name": "entity.name.type.instance"
         },
         "arrow": {
@@ -48,16 +49,16 @@
             "name": "comment.block"
         },
         "constant": {
-            "match": "[A-Z]|_[A-Z]",
+            "match": "[^a-z0-9éêâûùàèçïî\"'][A-ZÏÎÉÊÂÛÙÀÈÇ]+|[^a-z0-9éêâûùàèçïî]_[A-ZÏÎÉÊÂÛÙÀÈÇ]+",
             "name": "variable.other.contants"
         },
         "function": {
-            "match": "[a-zA-Z]+\\(",
+            "match": "[a-zA-ZéêâûùàèçïîÏÎÉÊÂÛÙÀÈÇ_]+\\(",
             "name": "entity.name.function"
         },
-        "blank": {
-            "match": "[a-zA-Z0-9]",
-            "name": "variable.parameter"
+        "furry": {
+            "match": "furry|furries|uwu|owo|awoo",
+            "name": "storage.type.function"
         }
     }
 }

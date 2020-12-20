@@ -3,7 +3,7 @@
 	"displayName": "AlgoSnipper",
 	"icon": "icon.png",
 	"description": "Auto-completion and snippets for Algo",
-	"version": "0.0.40",
+	"version": "0.0.45",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/paulux06/algosnipper.git"
@@ -56,6 +56,10 @@
 			{
 				"command": "algosnipper.insertArrow",
 				"title": "Insérer une flèche"
+			},
+			{
+				"command": "algosnipper.furryMode",
+				"title": "Toogle furry mode"
 			}
 		],
 		"snippets": [

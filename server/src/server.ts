@@ -2,6 +2,8 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+import { kMaxLength } from 'buffer';
+import { types } from 'util';
 import {
 	createConnection,
 	TextDocuments,
@@ -134,14 +136,82 @@ documents.onDidChangeContent(async change => {
 	validateTextDocument(textDocument);
 });
 
+let lexiqueTypes: {name: String, vars: {name: String, type: String}[]}[] = [];
+let lexiqueVars: {name: String, type: String, desc: String}[] = [];
+
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	// In this simple example we get the settings for every validate run.
 	let settings = await getDocumentSettings(textDocument.uri);
 
 	let diagnostics: Diagnostic[] = [];
+	lexiqueTypes = [];
+	lexiqueVars = [];
 
-	let orthoDiagnose: Diagnostic[] = correctOrtho(textDocument);
+	//try to get the lexique
+	let lines = textDocument.getText().split("\n");
+	let lexiqueIndex = 0;
+	for (let i = 0; i < lines.length; i++) {
+		if (lines[i].toLowerCase().startsWith("lexique")) {
+			lexiqueIndex = i+1;
+			break;
+		}
+	}
+	let lexiqueEnd = false;
+	while (!lexiqueEnd) {
+		let currentLine = lines[lexiqueIndex];
+		if (currentLine.toLowerCase().startsWith("fonction") ||
+			currentLine.toLowerCase().startsWith("algorithme"))
+			lexiqueEnd = true;
+		
+		if (!lexiqueEnd) {
+			//add line to types or vars lists
+			let isVariable = true;
+			let chars = currentLine.split("");
+			//check if variable or class
+			for (let i = 0; i < chars.length; i++) {
+				if (chars[i] == "=") {
+					isVariable = false;
+					break;
+				}
+			}
+			if (isVariable) {
+				let parts = currentLine.split(":");
+				let name = parts[0].trim();
+				let desc = "";
+				let type = parts[1];
+				let chars = parts[1].split("");
+				for (let i = 0; i < chars.length; i++) {
+					if (chars[i] == "/" && i < chars.length-1) {
+						type = parts[1].substring(0, i-1).trim();
+						desc = parts[1].substring(i, chars.length).trim();
+						break;
+					}
+				}
+				lexiqueVars.push({name: name, type: type, desc: desc});
+			} else {
+				let parts: {name: String, type: String}[] = [];
+				let sep = currentLine.split("=");
+				let name = sep[0].trim();
+				let attribs = sep[1].replace(">", "").replace("<", "").split(",")
+				attribs.forEach(attr => {
+					let pt = attr.split(":");
+					let attrName = pt[0].trim();
+					let attrType = pt[1].trim();
+					parts.push({name: attrName, type: attrType});
+				});
+				lexiqueTypes.push({name: name, vars: parts});
+			}
+		}
 
+		lexiqueIndex++
+		if (lexiqueIndex == lines.length)
+			lexiqueEnd = true;
+	}
+
+	// get all ortho errors
+	let orthoDiagnose: Diagnostic[] = correctOrtho(textDocument, lexiqueTypes, lexiqueVars);
+
+	/*
 	let diagnostic: Diagnostic = {
 		severity: DiagnosticSeverity.Warning,
 		range: {
@@ -151,12 +221,12 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 		message: `hello world`,
 		source: 'AlgoSnipper'
 	};
-	/*diagnostics.push(diagnostic);
+	diagnostics.push(diagnostic);
 
 	orthoDiagnose.forEach(diag => {
 		diagnostics.push(diag);
-	});*/
-	
+	});
+	*/
 	// Send the computed diagnostics to VSCode.
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
@@ -169,23 +239,23 @@ connection.onDidChangeWatchedFiles(_change => {
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
 	(_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-		return [
-			{
-				label: 'etu',
-				kind: CompletionItemKind.Variable,
-				data: 1
-			},
-			{
-				label: 'Etudiant',
+		let compList: CompletionItem[] = [];
+		let index = 0;
+		lexiqueTypes.forEach(el => {
+			compList.push({
+				label: el.name.toString(),
 				kind: CompletionItemKind.Class,
-				data: 2
-			},
-			{
-				label: 'nom',
-				kind: CompletionItemKind.Value,
-				data: 3
-			},
-		];
+				data: index++
+			});
+		});
+		lexiqueVars.forEach(el => {
+			compList.push({
+				label: el.name.toString(),
+				kind: CompletionItemKind.Variable,
+				data: index++
+			});
+		});
+		return compList;
 	}
 );
 
@@ -193,20 +263,21 @@ connection.onCompletion(
 // the completion list.
 connection.onCompletionResolve(
 	(item: CompletionItem): CompletionItem => {
-		if (item.data === 1) {
-			item.detail = 'variable etu';
-			item.documentation = {kind: MarkupKind.Markdown, value: [
-				"variable `etu` de type `Etudiant`",
-				"```algo",
-				"etu ◄- nouveau Etudiant(\"baptiste\", 15)",
-				"```"
-			].join("\n")};
-		} else if (item.data === 2) {
-			item.detail = 'classe Etudiant';
-			item.documentation = 'documentation';
-		} else if (item.data === 3) {
-			item.detail = 'attribut nom de etu';
-			item.documentation = 'documentation `salut` *salut* __salut__';
+		if (item.data < lexiqueTypes.length) {
+			item.detail = "Type "+lexiqueTypes[item.data].name
+			let val = "__**Attributs:**__\n```algo";
+			lexiqueTypes[item.data].vars.forEach(el => {
+				val += "\n"+el.name+" ( "+el.type+" )";
+			});
+			item.documentation = {kind: MarkupKind.Markdown, value: val+"\n```"};
+		} else {
+			item.detail = "Variable "+lexiqueVars[item.data-lexiqueTypes.length].name
+			let val = "```algo";
+			val += "\nnom: "+lexiqueVars[item.data-lexiqueTypes.length].name;
+			val += "\ntype: "+lexiqueVars[item.data-lexiqueTypes.length].type;
+			val += "\n"+lexiqueVars[item.data-lexiqueTypes.length].desc;
+			val += "\n```"
+			item.documentation = {kind: MarkupKind.Markdown, value: val};
 		}
 		return item;
 	}
@@ -220,20 +291,19 @@ documents.listen(connection);
 connection.listen();
 
 
-function correctOrtho(textDocument: TextDocument) : Diagnostic[] {
+function correctOrtho(textDocument: TextDocument, types: any, vars: any) : Diagnostic[] {
 	let text = textDocument.getText();
 	let diagnoses: Diagnostic[] = [];
 
-	/*let diagnostic: Diagnostic = {
+	let diagnostic: Diagnostic = {
 		severity: DiagnosticSeverity.Information,
 		range: {
-			start: TextDocument.positionAt(6), // TODO: trouver pk c'est niqué
-			end: TextDocument.positionAt(8)
+			start: textDocument.positionAt(6),
+			end: textDocument.positionAt(8)
 		},
 		message: "salut",
 		source: "AlgoSnipper"
-	}*/
-
+	}
 
 	return diagnoses;
 }
