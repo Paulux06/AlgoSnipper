@@ -3,7 +3,7 @@
 	"displayName": "AlgoSnipper",
 	"icon": "icon.png",
 	"description": "Auto-completion and snippets for Algo",
-	"version": "0.0.45",
+	"version": "0.0.50",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/paulux06/algosnipper.git"

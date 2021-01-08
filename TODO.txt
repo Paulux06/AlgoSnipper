@@ -1,3 +1,1 @@
 [execute program] function
-changer =/= vers ≠
-Améliorer le lexique auto
