@@ -18,10 +18,20 @@ import {
 	TextDocumentSyncKind,
 	InitializeResult,
 	MarkupContent,
-	MarkupKind
+	MarkupKind,
+	NotificationType,
+	ShowMessageRequest,
+	Position,
+	Hover,
+	CancellationToken,
+	ServerRequestHandler,
+	HoverParams,
+	CompletionItemTag,
+	Range
 } from 'vscode-languageserver';
 
-import {TextDocument} from 'vscode-languageserver-textdocument';
+import { TextDocument } from 'vscode-languageserver-textdocument';
+import { ResultProgress, WorkDoneProgress } from 'vscode-languageserver/lib/progress';
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 let connection = createConnection(ProposedFeatures.all);
@@ -127,6 +137,7 @@ function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
 // Only keep settings for open documents
 documents.onDidClose(e => {
 	documentSettings.delete(e.document.uri);
+
 });
 
 // The content of a text document has changed. This event is emitted
@@ -136,12 +147,13 @@ documents.onDidChangeContent(async change => {
 	validateTextDocument(textDocument);
 });
 
-let lexiqueTypes: {name: String, vars: {name: String, type: String}[]}[] = [];
-let lexiqueVars: {name: String, type: String, desc: String}[] = [];
+let lexiqueTypes: { name: string, type: string, vars: { name: string, type: string }[], more: any }[] = [];
+let lexiqueVars: { name: string, type: string, desc: string }[] = [];
+let messages: Diagnostic[] = [];
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
-	// In this simple example we get the settings for every validate run.
 	let settings = await getDocumentSettings(textDocument.uri);
+	messages = [];
 
 	let diagnostics: Diagnostic[] = [];
 	lexiqueTypes = [];
@@ -152,7 +164,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	let lexiqueIndex = 0;
 	for (let i = 0; i < lines.length; i++) {
 		if (lines[i].toLowerCase().startsWith("lexique")) {
-			lexiqueIndex = i+1;
+			lexiqueIndex = i + 1;
 			break;
 		}
 	}
@@ -162,7 +174,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 		if (currentLine.toLowerCase().startsWith("fonction") ||
 			currentLine.toLowerCase().startsWith("algorithme"))
 			lexiqueEnd = true;
-		
+
 		if (!lexiqueEnd) {
 			//add line to types or vars lists
 			let isVariable = true;
@@ -181,25 +193,187 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 				let type = parts[1];
 				let chars = parts[1].split("");
 				for (let i = 0; i < chars.length; i++) {
-					if (chars[i] == "/" && i < chars.length-1) {
-						type = parts[1].substring(0, i-1).trim();
+					if (chars[i] == "/" && i < chars.length - 1) {
+						type = parts[1].substring(0, i - 1).trim();
 						desc = parts[1].substring(i, chars.length).trim();
 						break;
 					}
 				}
-				lexiqueVars.push({name: name, type: type, desc: desc});
+				if (!existsType(type.trim())) {
+					let start = getWordPosition(currentLine, type);
+					messages.push({
+						severity: DiagnosticSeverity.Error,
+						range: {
+							start: Position.create(lexiqueIndex, start),
+							end: Position.create(lexiqueIndex, start+type.length)
+						},
+						message: "Le type ["+type+"] n'est pas défini.",
+						source: "AlgoSnipper"
+					});
+				}
+				lexiqueVars.push({ name: name, type: type, desc: desc });
 			} else {
-				let parts: {name: String, type: String}[] = [];
 				let sep = currentLine.split("=");
 				let name = sep[0].trim();
-				let attribs = sep[1].replace(">", "").replace("<", "").split(",")
-				attribs.forEach(attr => {
-					let pt = attr.split(":");
-					let attrName = pt[0].trim();
-					let attrType = pt[1].trim();
-					parts.push({name: attrName, type: attrType});
-				});
-				lexiqueTypes.push({name: name, vars: parts});
+				if (sep[1].trim().charAt(0) == "<") {
+					let parts = getPartsFromString(sep[1]);
+					lexiqueTypes.push({ name: name, vars: parts, type: "composite", more: null });
+				} else if (sep[1].trim().split(" ")[0] == "tableau") {
+					let attribs = sep[1].trim().split(" ");
+					attribs = attribs.reverse(); attribs.pop(); attribs = attribs.reverse();
+					let infos = attribs.join("").split("[");
+					let bounds: any[] = infos[1].replace("]", "").split("..");
+					let newBounds = [parseInt(bounds[0].trim().split(".").join("").replace("]", "")), parseInt(bounds[1].trim().split(".").join(""))];
+					if (!isNaN(newBounds[0])) bounds[0] = newBounds[0];
+					if (!isNaN(newBounds[1])) bounds[1] = newBounds[1];
+					let type_name: string = "";
+					let type = infos[0].trim();
+					let parts: { name: string, type: string }[] = [];
+					if (type.charAt(0) == "<") {
+						parts = getPartsFromString(type);
+						type_name = "Inconnu";
+					} else {
+						let infos = getInfosFromType(type);
+						if (infos != null) {
+							parts = infos.vars;
+							type_name = infos.name;
+						}
+						else {
+							parts = [];
+							type_name = "Inconnu";
+							let start = getWordPosition(currentLine, type.trim());
+							messages.push({
+								severity: DiagnosticSeverity.Error,
+								range: {
+									start: Position.create(lexiqueIndex, start),
+									end: Position.create(lexiqueIndex, start+type.length)
+								},
+								message: "Le type ["+type+"] n'est pas défini.",
+								source: "AlgoSnipper"
+							});
+						}
+					}
+					lexiqueTypes.push({ name: name, vars: parts, type: "tableau", more: { bounds: bounds, type_name: type_name } });
+				} else if (sep[1].trim().split("(")[0].trim() == "Liste") {
+					let attribs = sep[1].trim().split("(");
+					attribs = attribs.reverse(); attribs.pop(); attribs = attribs.reverse();
+					let type = attribs.join("").replace(")", "").trim();
+					let type_name: string = "";
+					let parts: { name: string, type: string }[] = [];
+					if (type.charAt(0) == "<") {
+						parts = getPartsFromString(type);
+						type_name = "Inconnu";
+					} else {
+						let infos = getInfosFromType(type);
+						if (infos != null) {
+							parts = infos.vars;
+							type_name = infos.name;
+						}
+						else {
+							parts = [];
+							type_name = "Inconnu";
+							let start = getWordPosition(currentLine, type.trim());
+							messages.push({
+								severity: DiagnosticSeverity.Error,
+								range: {
+									start: Position.create(lexiqueIndex, start),
+									end: Position.create(lexiqueIndex, start+type.length)
+								},
+								message: "Le type ["+type+"] n'est pas défini.",
+								source: "AlgoSnipper"
+							});
+						}
+					}
+					lexiqueTypes.push({ name: name, vars: parts, type: "liste", more: { type_name: type_name } });
+				} else if (sep[1].trim().split("[")[0].trim() == "Table") {
+					let attribs = sep[1].trim().split("[");
+					attribs = attribs.reverse(); attribs.pop(); attribs = attribs.reverse();
+					let content = attribs.join("").replace("]", "").trim();
+					let separators = ["->", "=>", "-►", "→"];
+					let separator = "";
+					for (let i = 0; i < separators.length; i++) {
+						let pos = getWordPosition(content, separators[i]);
+						if (pos != 0) {
+							separator = separators[i];
+							break;
+						}
+					}
+					let types = content.split(separator);
+					types[0] = types[0].trim(); types[1] = types[1].trim();
+					//get first type
+					let cle_type_name: string = "";
+					let cle_parts: { name: string, type: string }[] = [];
+					if (types[0].charAt(0) == "<") {
+						cle_parts = getPartsFromString(types[0]);
+						cle_type_name = "Inconnu";
+					} else {
+						let infos = getInfosFromType(types[0]);
+						if (infos != null) {
+							cle_parts = infos.vars;
+							cle_type_name = infos.name;
+						}
+						else if (!existsType(types[0])) {
+							cle_parts = [];
+							cle_type_name = "Inconnu";
+							let start = getWordPosition(currentLine, types[0].trim());
+							messages.push({
+								severity: DiagnosticSeverity.Error,
+								range: {
+									start: Position.create(lexiqueIndex, start),
+									end: Position.create(lexiqueIndex, start+types[0].length)
+								},
+								message: "Le type ["+types[0]+"] n'est pas défini.",
+								source: "AlgoSnipper"
+							});
+						}
+					}
+					//get second type
+					let val_type_name: string = "";
+					let val_parts: { name: string, type: string }[] = [];
+					if (types[1].charAt(0) == "<") {
+						val_parts = getPartsFromString(types[1]);
+						val_type_name = "Inconnu";
+					} else {
+						let infos = getInfosFromType(types[1]);
+						if (infos != null) {
+							val_parts = infos.vars;
+							val_type_name = infos.name;
+						}
+						else if (!existsType(types[1])) {
+							val_parts = [];
+							val_type_name = "Inconnu";
+							let start = getWordPosition(currentLine, types[1].trim());
+							messages.push({
+								severity: DiagnosticSeverity.Error,
+								range: {
+									start: Position.create(lexiqueIndex, start),
+									end: Position.create(lexiqueIndex, start+types[1].length)
+								},
+								message: "Le type ["+types[1]+"] n'est pas défini.",
+								source: "AlgoSnipper"
+							});
+						}
+					}
+					lexiqueTypes.push({ name: name, vars: [], type: "table", more: { cle_type: cle_type_name, val_type: val_type_name } });
+				} else if (existsType(sep[1].trim())) {
+					let infos = getInfosFromType(sep[1].trim());
+					if (infos != null) lexiqueTypes.push({name: name, vars: infos.vars, type: "variable", more: null});
+				} else {
+					let found = getInfosFromType(sep[1].trim());
+					if (found == null) {
+						messages.push({
+							severity: DiagnosticSeverity.Error,
+							range: {
+								start: Position.create(lexiqueIndex, 4),
+								end: Position.create(lexiqueIndex, currentLine.length)
+							},
+							message: "Déclaration de type incorrecte.",
+							source: "AlgoSnipper"
+						});
+					} else {
+						lexiqueTypes.push({ name: name, vars: found.vars, type: found.type, more: found.more });
+					}
+				}
 			}
 		}
 
@@ -211,22 +385,13 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	// get all ortho errors
 	let orthoDiagnose: Diagnostic[] = correctOrtho(textDocument, lexiqueTypes, lexiqueVars);
 
-	/*
-	let diagnostic: Diagnostic = {
-		severity: DiagnosticSeverity.Warning,
-		range: {
-			start: textDocument.positionAt(0),
-			end: textDocument.positionAt(1)
-		},
-		message: `hello world`,
-		source: 'AlgoSnipper'
-	};
-	diagnostics.push(diagnostic);
-
+	messages.forEach(diag => {
+		diagnostics.push(diag);
+	});
 	orthoDiagnose.forEach(diag => {
 		diagnostics.push(diag);
 	});
-	*/
+	
 	// Send the computed diagnostics to VSCode.
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
@@ -264,24 +429,32 @@ connection.onCompletion(
 connection.onCompletionResolve(
 	(item: CompletionItem): CompletionItem => {
 		if (item.data < lexiqueTypes.length) {
-			item.detail = "Type "+lexiqueTypes[item.data].name
-			let val = "__**Attributs:**__\n```algo";
-			lexiqueTypes[item.data].vars.forEach(el => {
-				val += "\n"+el.name+" ( "+el.type+" )";
-			});
-			item.documentation = {kind: MarkupKind.Markdown, value: val+"\n```"};
+			let cur_type = lexiqueTypes[item.data];
+			item.detail = "Type " + cur_type.name;
+			let val = getDocFromType(cur_type);
+			item.documentation = { kind: MarkupKind.Markdown, value: val };
 		} else {
-			item.detail = "Variable "+lexiqueVars[item.data-lexiqueTypes.length].name
+			let cur_var = lexiqueVars[item.data - lexiqueTypes.length];
+			item.detail = "Variable " + cur_var.name
 			let val = "```algo";
-			val += "\nnom: "+lexiqueVars[item.data-lexiqueTypes.length].name;
-			val += "\ntype: "+lexiqueVars[item.data-lexiqueTypes.length].type;
-			val += "\n"+lexiqueVars[item.data-lexiqueTypes.length].desc;
-			val += "\n```"
-			item.documentation = {kind: MarkupKind.Markdown, value: val};
+			val += "\nnom: " + lexiqueVars[item.data - lexiqueTypes.length].name;
+			val += "\ntype: " + lexiqueVars[item.data - lexiqueTypes.length].type;
+			val += "\n" + lexiqueVars[item.data - lexiqueTypes.length].desc;
+			val += "\n```\n\n"
+			let infos = getInfosFromType(cur_var.type.trim());
+			if (infos!=null) val += getDocFromType(infos);
+			item.documentation = { kind: MarkupKind.Markdown, value: val };
 		}
 		return item;
 	}
 );
+
+connection.onHover(
+	(param: HoverParams): Hover => {
+		let hov: Hover = {contents: {language: "algo", value: "salut"}, range: undefined};
+		return hov;
+	}
+)
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events
@@ -291,7 +464,7 @@ documents.listen(connection);
 connection.listen();
 
 
-function correctOrtho(textDocument: TextDocument, types: any, vars: any) : Diagnostic[] {
+function correctOrtho(textDocument: TextDocument, types: any, vars: any): Diagnostic[] {
 	let text = textDocument.getText();
 	let diagnoses: Diagnostic[] = [];
 
@@ -303,7 +476,116 @@ function correctOrtho(textDocument: TextDocument, types: any, vars: any) : Diagn
 		},
 		message: "salut",
 		source: "AlgoSnipper"
-	}
+	};
 
 	return diagnoses;
+}
+
+function getPartsFromString(str: string): { name: string, type: string }[] {
+	let parts: { name: string, type: string }[] = [];
+	let attribs = str.replace(">", "").replace("<", "").split(",")
+	attribs.forEach(attr => {
+		let pt = attr.split(":");
+		let attrName = pt[0].trim();
+		let attrType = pt[1].trim();
+		parts.push({ name: attrName, type: attrType });
+	});
+	return parts;
+}
+function getInfosFromType(type: string): { name: string, type: string, vars: { name: string, type: string }[], more: any }|null {
+	var found: { name: string, type: string, vars: { name: string, type: string }[], more: any }|null = null;
+	switch (type) {
+ 		case "entier":
+			found = {name: "entier", type: "variable", vars: [{name: "entier", type: "entier"}], more: null};
+			break;
+		case "chaîne":
+			found = {name: "chaîne", type: "variable", vars: [{name: "chaîne", type: "chaîne"}], more: null};
+			break;
+		case "caractère":
+			found = {name: "caractère", type: "variable", vars: [{name: "caractère", type: "caractère"}], more: null};
+			break;
+		case "booléen":
+			found = {name: "booléen", type: "variable", vars: [{name: "booléen", type: "booléen"}], more: null};
+			break;
+		case "Inconnu":
+			found = {name: "booléen", type: "variable", vars: [{name: "booléen", type: "booléen"}], more: null};
+			break;
+		default:
+			lexiqueTypes.forEach(ltype => {
+				if (ltype.name == type) found = ltype;
+			});
+			break;
+	}
+	return found;
+}
+function getDocFromType(cur_type: { name: string, type: string, vars: { name: string, type: string }[], more: any }): string {
+	let val = "";
+	switch (cur_type.type) {
+		case "variable":
+			val += "Variable de base\n\n";
+			val += "__**Type de variable:**__\n```algo";
+			val += "\n"+cur_type.vars[0].type;
+			break;
+		case "composite":
+			val += "Variable composite\n\n";
+			val += "__**Attributs:**__\n```algo";
+			cur_type.vars.forEach(el => {
+				val += "\n" + el.name + " ( " + el.type + " )";
+			});
+			break;
+		case "tableau":
+			val += "Tableau d'éléments "+cur_type.more.type_name+"\n\n";
+			val += "Index: "+cur_type.more.bounds[0]+" - "+cur_type.more.bounds[1]+"\n\n"
+			val += "__**Attributs des éléments:**__\n```algo";
+			cur_type.vars.forEach(el => {
+				val += "\n" + el.name + " ( " + el.type + " )";
+			});
+			break;
+		case "liste":
+			val += "Liste d'éléments "+cur_type.more.type_name+"\n\n";
+			val += "__**Attributs des éléments:**__\n```algo";
+			cur_type.vars.forEach(el => {
+				val += "\n" + el.name + " ( " + el.type + " )";
+			});
+			break;
+		case "table":
+			val += "Table de couple ("+cur_type.more.cle_type+", "+cur_type.more.val_type+")\n\n";
+			let infos = getInfosFromType(cur_type.more.cle_type);
+			if (infos!=null) {
+				val += "__**Attributs des clés:**__\n```algo";
+				infos.vars.forEach(el => {
+					val += "\n" + el.name + " ( " + el.type + " )";
+				});
+			}
+			val += "\n```\n\n";
+			infos = getInfosFromType(cur_type.more.val_type);
+			if (infos!=null) {
+				val += "__**Attributs des valeurs:**__\n```algo";
+				infos.vars.forEach(el => {
+					val += "\n" + el.name + " ( " + el.type + " )";
+				});
+			}
+			break;
+
+		default: break;
+	}
+	val += "\n\n```";
+	return val;
+}
+function existsType(type: string): boolean {
+	let result = false;
+	if (getInfosFromType(type) == null) {
+		result = (type=="entier") || (type=="chaîne") || (type=="caractère") ||
+				 (type=="réel") || (type=="booléen") || (type=="Inconnu") ||
+				 (type=="Place");
+	} else result = true;
+	return result;
+}
+
+function getWordPosition(sentence: string, word: string): number {
+	let position = 0;
+	for (let i = 0; i <= sentence.length-word.length; i++) {
+		if (sentence.substr(i, word.length) == word) position = i;
+	}
+	return position
 }

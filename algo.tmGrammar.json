@@ -4,12 +4,12 @@
     "repository": {
         "expression": {
             "patterns": [
+                { "include": "#single-comment" }, { "include": "#double-comment" },
                 { "include": "#keywords" }, { "include": "#numbers" }, 
                 { "include": "#types" }, { "include": "#constant" },
                 { "include": "#single-quote" }, { "include": "#double-quote" },
                 { "include": "#function" }, { "include": "#arrow" },
-                { "include": "#single-comment" }, { "include": "#double-comment" },
-                { "include": "#furry" }
+                { "include": "#furry" }, { "include": "#blank" }
             ]
         },
         "keywords": {
@@ -17,15 +17,15 @@
             "name": "keyword.letter"
         },
         "numbers": {
-            "match": "[^a-zA-ZéêâûùàèçïîÏÎÉÊÂÛÙÀÈÇ_][0-9]+\\.[0-9]|[^a-zA-ZéêâûùàèçïîÏÎÉÊÂÛÙÀÈÇ_][0-9]|vrai|faux",
+            "match": "[0-9]+\\.[0-9]|[0-9]+|vrai|faux",
             "name": "constant.numeric.decimal"
         },
         "types": {
-            "match": "entier|chaîne|caractère|booléen|réel|tableau|[^A-Za-z0-9éêâûùàèçïî_\"'][A-ZÉÊÂÛÙÀÈÇÏÎ_]+[a-z0-9éêâûùàèçïî_]+[a-zA-Z0-9éêâûùàèçïîÏÎÉÊÂÛÙÀÈÇ_]*",
+            "match": "entier|chaîne|caractère|booléen|réel|tableau|[A-ZÉÊÂÛÙÀÈÇÏÎ]+[a-z0-9éêâûùàèçïî]+[a-zA-Z0-9éêâûùàèçïîÏÎÉÊÂÛÙÀÈÇ_]*",
             "name": "entity.name.type.instance"
         },
         "arrow": {
-            "match": "←|◄-|<-|<=|=|<|>|>=|->|=>|-►",
+            "match": "←|◄-|<-|<=|=|<|>|>=|->|=>|-►|→|/|≠",
             "name": "support.function"
         },
         "double-quote": {
@@ -49,7 +49,7 @@
             "name": "comment.block"
         },
         "constant": {
-            "match": "[^a-z0-9éêâûùàèçïî\"'][A-ZÏÎÉÊÂÛÙÀÈÇ]+|[^a-z0-9éêâûùàèçïî]_[A-ZÏÎÉÊÂÛÙÀÈÇ]+",
+            "match": "[A-ZÏÎÉÊÂÛÙÀÈÇ]+[A-ZÏÎÉÊÂÛÙÀÈÇ_]*",
             "name": "variable.other.contants"
         },
         "function": {
@@ -59,6 +59,10 @@
         "furry": {
             "match": "furry|furries|uwu|owo|awoo",
             "name": "storage.type.function"
+        },
+        "blank": {
+            "match": "[a-zA-ZéêâûùàèçïîÏÎÉÊÂÛÙÀÈÇ_]+[0-9]*[^\\(]",
+            "name": "meta.brace.square"
         }
     }
 }

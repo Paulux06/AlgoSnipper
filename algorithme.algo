@@ -26,17 +26,29 @@ début
         fpour
         chgtab(tabFin, k, res)
     fpour
-    retourne 
+    retourne
 fin
 
 lexique:
-	n : entier, // commentaire
-	tabReponse : Table([1..20] // commentaire
+    Maillon = <val: chaîne, suc: Maillon>
+    TabMaillon = tableau Maillon [1..10]
+    TabInconnu = tableau <suc: entier, uwu: chaîne> [1..MAX_TAB]
+    ListeMaillon = Liste (Maillon)
+    ListeInconnu = Liste (<suc: entier, uwu: chaîne>)
+    Personne = entier
+    TableEntierPersonne = Table(entier -► Personne)
+    tabMaillon: TabMaillon
+    tabInconnu: TabInconnu
+    listeMaillon: ListeMaillon
+    listeInconnu: ListeInconnu
+    n : entier // commentaire
+    tabReponse : TableEntierPersonne // commentaire
 	nbMin : entier // commentaire
-	tabFin : inconnu // commentaire
-	nom : inconnu // commentaire
+	tabFin : Inconnu // commentaire
+	nom : Inconnu // commentaire
 	nbP : entier // commentaire
-	val : inconnu // commentaire
-	obtention : booléen // commentaire
-	res : inconnu // commentaire
+	val : Inconnu // commentaire
+    obtention : booléen // commentaire
+    obtention9: booléen // com
+	res : Inconnu // commentaire
 	k : entier // commentaire

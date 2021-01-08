@@ -97,5 +97,26 @@
         "body": [
             "retourne ${1:valeur}"
         ]
+    },
+    "Template de [fleche gauche]": {
+        "scope": "algo",
+        "prefix": "<=",
+        "body": [
+            "◄-"
+        ]
+    },
+    "Template de [fleche droite]": {
+        "scope": "algo",
+        "prefix": "=>",
+        "body": [
+            "-►"
+        ]
+    },
+    "Template de [différent]": {
+        "scope": "algo",
+        "prefix": "=/=",
+        "body": [
+            "≠"
+        ]
     }
 }
