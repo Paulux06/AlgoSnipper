@@ -6,6 +6,7 @@
 import { existsSync } from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import {DoomView} from './doom';
 
 import {
 	LanguageClient,
@@ -127,14 +128,18 @@ export function activate(context: vscode.ExtensionContext) {
 					let fin = 0;
 					for (let i = 0; i < line.text.length; i++) {
 						let cur_char = line.text.charAt(i);
-						if (cur_char=="(" && deb==0) deb = i+1;
-						if (cur_char==")") fin = i-1;
+						if (cur_char=="(" && deb==0) deb = i;
+						if (cur_char==")") fin = i;
 					}
-					let args = line.text.substring(deb, fin).trim().split(",");
-					for (let i = 0; i < args.length; i++) {
-						const arg = args[i];
-						let parts = arg.trim().split(":");
-						variables.push({name: parts[0].replace("InOut", "").trim(), type: parts[1].trim()});
+					let args: string|string[] = line.text.substring(deb+1, fin-1).trim();
+					if (args.length > 0) {
+						args = args.split(",");
+						for (let i = 0; i < args.length; i++) {
+							const arg = args[i];
+							let parts = arg.trim().split(":");
+							if (parts.length > 1)
+								variables.push({name: parts[0].replace("InOut", "").trim(), type: parts[1].trim()});
+						}
 					}
 				} else {
 					let words = line.text.split(" ");
@@ -199,6 +204,10 @@ export function activate(context: vscode.ExtensionContext) {
 		output.appendLine("--- Désolé, cette fonctionnalité n'est pas encore disponible ---");
 	});
 
+	let doom: vscode.Disposable = vscode.commands.registerCommand('algosnipper.launchDoom', function () {
+		DoomView.createOrShow(vscode.Uri.file(context.extensionPath));
+	})
+
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(
 		path.join('server', 'out', 'server.js')
@@ -243,6 +252,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(insertArrow);
 	context.subscriptions.push(launch);
 	context.subscriptions.push(toogleFurryMode);
+	context.subscriptions.push(doom);
 }
 
 export function deactivate(): Thenable<void> | undefined {

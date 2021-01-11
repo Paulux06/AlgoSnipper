@@ -7,10 +7,11 @@ Cette extension ajoute:
   - Une colorisation des mots clés pour y voir plus clair
   - Une complétion automatique (plus ou moins) intelligente
   - Des outils pour exécuter l'algorithme (encore en bêta), générer le lexique, ...
+  - DOOM (Oui, vraiment) \[CTRL+SHIFT+P\] + commande "Start Doom"
 
 Raccourcis disponibles:
-\[CTRL+ALT+G\]: Génère le lexique automatiquement
-\[CTRL+ENTER\]: Créé une flèche vers la gauche
+  - \[CTRL+ALT+G\]: Génère le lexique automatiquement
+  - \[CTRL+ENTER\]: Créé une flèche vers la gauche
 
 # [English] Algo extension for Charlemagne IT Departement
 *(thx to my english teacher, btw)*
@@ -22,10 +23,11 @@ This extension provides:
   - A keyword colorization to help reading the code
   - A (more or less) smart autocompletion
   - Some tools to execute the algorithme (still in beta), generate lexicon, ...
+  - DOOM (Yes, really) \[CTRL+SHIFT+P\] + command "Start Doom"
 
 Available shortcuts:
-\[CTRL+ALT+G\]: Generates the lexicon automatically
-\[CTRL+ENTER\]: Creates a left pointing arrow
+  - \[CTRL+ALT+G\]: Generates the lexicon automatically
+  - \[CTRL+ENTER\]: Creates a left pointing arrow
 
 ![snippet demo](https://raw.githubusercontent.com/Paulux06/AlgoSnipper/master/snippets.gif)
 ![colorization demo](https://raw.githubusercontent.com/Paulux06/AlgoSnipper/master/colorisation.gif)

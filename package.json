@@ -3,7 +3,7 @@
 	"displayName": "AlgoSnipper",
 	"icon": "icon.png",
 	"description": "Auto-completion and snippets for Algo",
-	"version": "0.0.50",
+	"version": "0.0.55",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/paulux06/algosnipper.git"
@@ -17,7 +17,8 @@
 		"vscode": "^1.51.0"
 	},
 	"activationEvents": [
-		"onLanguage:algo"
+		"onLanguage:algo",
+		"onCommand:algosnipper.launchDoom"
 	],
 	"main": "./client/out/extension",
 	"contributes": {
@@ -60,6 +61,10 @@
 			{
 				"command": "algosnipper.furryMode",
 				"title": "Toogle furry mode"
+			},
+			{
+				"command": "algosnipper.launchDoom",
+				"title": "Start doom"
 			}
 		],
 		"snippets": [
